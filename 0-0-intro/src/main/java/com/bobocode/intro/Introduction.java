@@ -19,6 +19,6 @@ public class Introduction {
      * @return "The key to efficient learning is practice!"
      */
     public String welcomeMessage() {
-        throw new ExerciseNotCompletedException(); // todo:
+        return "The key to efficient learning is practice!";
     }
 }
