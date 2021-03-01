@@ -8,8 +8,8 @@ package com.bobobode.cs;
  * @param <T> a generic type T
  */
 public class Node<T> {
-    public T element;
-    public Node<T> next;
+    T element;
+    Node<T> next;
 
     public Node(T element) {
         this.element = element;

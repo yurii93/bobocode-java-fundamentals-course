@@ -1,7 +1,5 @@
 package com.bobobode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
-
 /**
  * A class that consists of static methods only and provides util methods for {@link Node}.
  */
@@ -42,8 +40,7 @@ public class Nodes {
      */
     public static <T> Node<T> pairOf(T firstElement, T secondElement) {
         Node<T> firstNode = new Node<>(firstElement);
-        Node<T> secondNode = new Node<>(secondElement);
-        link(firstNode, secondNode);
+        firstNode.next = new Node<>(secondElement);
         return firstNode;
     }
 
@@ -60,8 +57,8 @@ public class Nodes {
     public static <T> Node<T> closedPairOf(T firstElement, T secondElement) {
         Node<T> firstNode = new Node<>(firstElement);
         Node<T> secondNode = new Node<>(secondElement);
-        link(firstNode, secondNode);
-        link(secondNode, firstNode);
+        firstNode.next = secondNode;
+        secondNode.next = firstNode;
         return firstNode;
     }
 
@@ -74,15 +71,12 @@ public class Nodes {
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> chainOf(T... elements) {
-        Node<T> currentNode, firstNode = elements.length > 0 ? new Node<>(elements[0]) : null;
-        currentNode = firstNode;
-
+        Node<T> firstNode = new Node<>(elements[0]);
+        Node<T> current = firstNode;
         for (int i = 1; i < elements.length; i++) {
-            Node<T> node = new Node<>(elements[i]);
-            currentNode.next = node;
-            currentNode = node;
+            current.next = new Node<>(elements[i]);
+            current = current.next;
         }
-
         return firstNode;
     }
 
@@ -96,16 +90,13 @@ public class Nodes {
      * @return a reference to the first element of the chain
      */
     public static <T> Node<T> circleOf(T... elements) {
-        Node<T> currentNode, firstNode = elements.length > 0 ? new Node<>(elements[0]) : null;
-        currentNode = firstNode;
-
+        Node<T> firstNode = new Node<>(elements[0]);
+        Node<T> current = firstNode;
         for (int i = 1; i < elements.length; i++) {
-            Node<T> node = new Node<>(elements[i]);
-            currentNode.next = node;
-            currentNode = node;
-            if (i == (elements.length - 1)) node.next = firstNode;
+            current.next = new Node<>(elements[i]);
+            current = current.next;
         }
-
+        current.next = firstNode;
         return firstNode;
     }
 }
