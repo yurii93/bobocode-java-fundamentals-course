@@ -1,7 +1,5 @@
 package com.bobocode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
-
 /**
  * {@link LinkedQueue} implements FIFO {@link Queue}, using singly linked nodes. Nodes are stores in instances of nested
  * class Node. In order to perform operations {@link LinkedQueue#add(Object)} and {@link LinkedQueue#poll()}
@@ -19,7 +17,7 @@ public class LinkedQueue<T> implements Queue<T> {
             this.element = element;
         }
 
-        public static <T> Node<T> valueOf(T element) {
+        static <T> Node<T> valueOf(T element) {
             return new Node<>(element);
         }
     }
@@ -35,12 +33,12 @@ public class LinkedQueue<T> implements Queue<T> {
      */
     public void add(T element) {
         Node<T> newNode = Node.valueOf(element);
-        if(head != null) {
-            tail.next = newNode;
+        if (head == null) {
+            head = tail = newNode;
         } else {
-            head = newNode;
+            tail.next = newNode;
+            tail = newNode;
         }
-        tail = newNode;
         size++;
     }
 
@@ -50,13 +48,17 @@ public class LinkedQueue<T> implements Queue<T> {
      * @return an element that was retrieved from the head or null if queue is empty
      */
     public T poll() {
-        if(isEmpty()) {
+        if (head != null) {
+            T element = head.element;
+            head = head.next;
+            if (head == null) {
+                tail = null;
+            }
+            size--;
+            return element;
+        } else {
             return null;
         }
-        T element = head.element;
-        head = head.next;
-        size--;
-        return element;
     }
 
     /**
