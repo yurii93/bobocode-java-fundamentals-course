@@ -10,8 +10,8 @@ package com.bobocode.cs;
 public class LinkedQueue<T> implements Queue<T> {
 
     private static class Node<T> {
-        T element;
-        Node<T> next;
+        private T element;
+        private Node<T> next;
 
         private Node(T element) {
             this.element = element;
