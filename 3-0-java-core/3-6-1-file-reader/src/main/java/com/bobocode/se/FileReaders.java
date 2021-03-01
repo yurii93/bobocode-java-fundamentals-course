@@ -5,7 +5,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
@@ -21,11 +24,27 @@ public class FileReaders {
      * @return string that holds whole file content
      */
     public static String readWholeFile(String fileName) {
+        Path filePath = createPathFromFileName(fileName);
+        try (Stream<String> fileLinesStream = openFileLinesStream(filePath)) {
+            return fileLinesStream.collect(joining("\n"));
+        }
+    }
+
+    private static Path createPathFromFileName(String fileName) {
+        Objects.requireNonNull(fileName);
         URL fileUrl = FileReaders.class.getClassLoader().getResource(fileName);
         try {
-            return Files.lines(Paths.get(fileUrl.toURI()), StandardCharsets.UTF_8).collect(joining("\n"));
-        } catch (IOException | URISyntaxException e) {
-            throw new FileReaderException("Can't find, open or read file", e);
+            return Paths.get(fileUrl.toURI());
+        } catch (URISyntaxException e) {
+            throw new FileReaderException("Invalid file URL", e);
+        }
+    }
+
+    private static Stream<String> openFileLinesStream(Path filePath) {
+        try {
+            return Files.lines(filePath);
+        } catch (IOException e) {
+            throw new FileReaderException("Cannot create stream of file lines!", e);
         }
     }
 }
