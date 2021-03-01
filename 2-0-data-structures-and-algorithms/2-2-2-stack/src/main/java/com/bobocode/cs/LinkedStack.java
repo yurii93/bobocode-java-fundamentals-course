@@ -17,7 +17,7 @@ public class LinkedStack<T> implements Stack<T> {
         T element;
         Node<T> next;
 
-        public Node(T element) {
+        private Node(T element) {
             this.element = element;
         }
 
