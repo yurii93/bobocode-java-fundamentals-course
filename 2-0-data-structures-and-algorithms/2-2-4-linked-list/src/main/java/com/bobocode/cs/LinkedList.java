@@ -1,6 +1,9 @@
 package com.bobocode.cs;
 
 
+import com.bobocode.util.ExerciseNotCompletedException;
+
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -11,23 +14,23 @@ import java.util.stream.Stream;
  *
  * @param <T> generic type parameter
  */
-public class LinkedList<T> {
+public class LinkedList<T> implements List<T> {
 
     private static class Node<T> {
-        private T element;
+        private T value;
         private Node<T> next;
 
-        private Node(T element) {
-            this.element = element;
+        private Node(T value) {
+            this.value = value;
         }
 
-        static <T> Node<T> valueOf(T element) {
-            return new Node<>(element);
+        static <T> Node<T> valueOf(T value) {
+            return new Node<>(value);
         }
     }
 
-    private Node<T> head;
-    private Node<T> tail;
+    private Node<T> first;
+    private Node<T> last;
     private int size;
 
     /**
@@ -48,14 +51,14 @@ public class LinkedList<T> {
      *
      * @param element element to add
      */
-
+    @Override
     public void add(T element) {
-        Node<T> newNode = Node.valueOf(element);
-        if (head == null) {
-            head = tail = newNode;
+        Node<T> newNode = new Node<>(element);
+        if (size == 0) {
+            first = last = newNode;
         } else {
-            tail.next = newNode;
-            tail = newNode;
+            last.next = newNode;
+            last = newNode;
         }
         size++;
     }
@@ -67,33 +70,53 @@ public class LinkedList<T> {
      * @param index   an index of new element
      * @param element element to add
      */
-
+    @Override
     public void add(int index, T element) {
-        Objects.checkIndex(index, size + 1);
-
         Node<T> newNode = Node.valueOf(element);
-
-        if (head == null) {
-            head = tail = newNode;
-        } else if (index == 0) {
-            newNode.next = head;
-            head = newNode;
+        if (index == 0) {
+            addAsHead(newNode);
         } else if (index == size) {
-            tail.next = newNode;
-            tail = newNode;
+            addAsTail(newNode);
         } else {
-            Node<T> prev;
-            Node<T> current = head;
-            for (int i = 0; i < index; i++) {
-                prev = current;
-                current = current.next;
-                if (i == index - 1) {
-                    prev.next = newNode;
-                    newNode.next = current;
-                }
-            }
+            add(index, newNode);
         }
         size++;
+    }
+
+    private void addAsHead(Node<T> newNode) {
+        newNode.next = first;
+        first = newNode;
+        if (first.next == null) {
+            last = first;
+        }
+    }
+
+    private void addAsTail(Node<T> newNode) {
+        last.next = newNode;
+        last = newNode;
+    }
+
+    private void add(int index, Node<T> newNode) {
+        Node<T> node = findNodeByIndex(index - 1);
+        newNode.next = node.next;
+        node.next = newNode;
+    }
+
+    private Node<T> findNodeByIndex(int index) {
+        Objects.checkIndex(index, size);
+        if (index == size - 1) {
+            return last;
+        } else {
+            return nodeAt(index);
+        }
+    }
+
+    private Node<T> nodeAt(int index) {
+        Node<T> currentNode = first;
+        for (int i = 0; i < index; i++) {
+            currentNode = currentNode.next;
+        }
+        return currentNode;
     }
 
     /**
@@ -103,23 +126,10 @@ public class LinkedList<T> {
      * @param index   an position of element to change
      * @param element a new element value
      */
-
+    @Override
     public void set(int index, T element) {
-        Objects.checkIndex(index, size);
-
-        if (index == 0) {
-            head.element = element;
-        } else if (index == size - 1) {
-            tail.element = element;
-        } else {
-            Node<T> current = head;
-            for (int i = 0; i <= index; i++) {
-                if (i == index) {
-                    current.element = element;
-                }
-                current = current.next;
-            }
-        }
+        Node<T> node = findNodeByIndex(index);
+        node.value = element;
     }
 
     /**
@@ -129,25 +139,10 @@ public class LinkedList<T> {
      * @param index element index
      * @return an element value
      */
-
+    @Override
     public T get(int index) {
-        Objects.checkIndex(index, size);
-
-        if (index == 0) {
-            return head.element;
-        } else if (index == size - 1) {
-            return tail.element;
-        } else {
-            Node<T> current = head;
-            for (int i = 0; i <= index; i++) {
-                if (i == index) {
-                    return current.element;
-                }
-                current = current.next;
-            }
-        }
-
-        return null;
+        Node<T> node = findNodeByIndex(index);
+        return node.value;
     }
 
     /**
@@ -156,13 +151,10 @@ public class LinkedList<T> {
      * @return the head element of the list
      * @throws java.util.NoSuchElementException if list is empty
      */
-
+    @Override
     public T getFirst() {
-        if (head == null) {
-            throw new NoSuchElementException();
-        }
-
-        return head.element;
+        checkElementsExist();
+        return first.value;
     }
 
     /**
@@ -171,13 +163,16 @@ public class LinkedList<T> {
      * @return the tail element of the list
      * @throws java.util.NoSuchElementException if list is empty
      */
-
+    @Override
     public T getLast() {
-        if (tail == null) {
+        checkElementsExist();
+        return last.value;
+    }
+
+    private void checkElementsExist() {
+        if (first == null) {
             throw new NoSuchElementException();
         }
-
-        return tail.element;
     }
 
     /**
@@ -187,49 +182,44 @@ public class LinkedList<T> {
      * @param index element index
      * @return deleted element
      */
-
+    @Override
     public T remove(int index) {
-        Objects.checkIndex(index, size);
-
-        T removedElement = null;
-
+        T deletedElement;
         if (index == 0) {
-            removedElement = head.element;
-            head = head.next;
-            if (head == null) {
-                tail = null;
-            }
+            deletedElement = first.value;
+            removeHead();
         } else {
-            Node<T> prev = null;
-            Node<T> current = head;
-            for (int i = 0; i < index; i++) {
-                prev = current;
-                current = current.next;
-            }
-            removedElement = current.element;
-            prev.next = current.next;
+            Node<T> previousNode = findNodeByIndex(index - 1);
+            deletedElement = previousNode.next.value;
+            previousNode.next = previousNode.next.next;
             if (index == size - 1) {
-                tail = prev;
+                last = previousNode;
             }
         }
         size--;
-        return removedElement;
+        return deletedElement;
     }
 
+    private void removeHead() {
+        first = first.next;
+        if (first == null) {
+            last = null;
+        }
+    }
 
     /**
      * Checks if a specific exists in he list
      *
      * @return {@code true} if element exist, {@code false} otherwise
      */
-
+    @Override
     public boolean contains(T element) {
-        Node<T> current = head;
-        for (int i = 0; i < size; i++) {
-            if (current.element.equals(element)) {
+        Node<T> currentNode = first;
+        while (currentNode != null) {
+            if (currentNode.value.equals(element)) {
                 return true;
             }
-            current = current.next;
+            currentNode = currentNode.next;
         }
         return false;
     }
@@ -239,9 +229,9 @@ public class LinkedList<T> {
      *
      * @return {@code true} if list is empty, {@code false} otherwise
      */
-
+    @Override
     public boolean isEmpty() {
-        return head == null;
+        return first == null;
     }
 
     /**
@@ -249,7 +239,7 @@ public class LinkedList<T> {
      *
      * @return number of elements
      */
-
+    @Override
     public int size() {
         return size;
     }
@@ -257,9 +247,9 @@ public class LinkedList<T> {
     /**
      * Removes all list elements
      */
-
+    @Override
     public void clear() {
-        head = tail = null;
+        first = last = null;
         size = 0;
     }
 }
