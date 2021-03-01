@@ -1,9 +1,6 @@
 package com.bobocode.oop.service;
 
-import com.bobocode.oop.data.FlightDao;
-
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -14,10 +11,10 @@ import java.util.stream.Collectors;
  */
 public class FlightService {
 
-    private FlightDao flightDao;
+    private Flights flights;
 
-    public FlightService() {
-        this.flightDao = new FlightDao();
+    public FlightService(Flights flights) {
+        this.flights = flights;
     }
 
     /**
@@ -27,7 +24,7 @@ public class FlightService {
      * @return {@code true} if a flight number was added, {@code false} otherwise
      */
     public boolean registerFlight(String flightNumber) {
-        return flightDao.register(flightNumber);
+        return flights.register(flightNumber);
     }
 
     /**
@@ -37,7 +34,8 @@ public class FlightService {
      * @return a list of found flight numbers
      */
     public List<String> searchFlights(String query) {
-        Set<String> flights = flightDao.findAll();
-        return flights.stream().filter(flight -> flight.contains(query)).collect(Collectors.toList());
+        return flights.findAll().stream()
+                .filter(flight -> flight.contains(query))
+                .collect(Collectors.toList());
     }
 }
