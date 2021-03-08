@@ -26,6 +26,8 @@ public class SumOfSquares {
         }
 
         // todo: refactor using functional approach – instead of using for loop, use IntStream.rangeClose()
-        return IntStream.rangeClosed(startInclusive, endInclusive).reduce(0, (acc, n) -> acc + (n * n));
+        return IntStream.rangeClosed(startInclusive, endInclusive)
+                .map(a -> a * a)
+                .sum();
     }
 }
