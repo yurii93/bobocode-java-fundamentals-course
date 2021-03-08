@@ -5,6 +5,7 @@ import com.bobocode.util.ExerciseNotCompletedException;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.*;
 
 /**
@@ -51,7 +52,7 @@ public class CrazyLambdas {
      * @return function that converts adds dollar sign
      */
     public static Function<BigDecimal, String> toDollarStringFunction() {
-        return n -> '$' + String.valueOf(n);
+        return val -> "$" + val;
     }
 
     /**
@@ -72,7 +73,7 @@ public class CrazyLambdas {
      * @return int supplier
      */
     public static IntSupplier randomIntSupplier() {
-        return () -> new Random().nextInt();
+        return () -> ThreadLocalRandom.current().nextInt();
     }
 
 
@@ -82,7 +83,7 @@ public class CrazyLambdas {
      * @return int operation
      */
     public static IntUnaryOperator boundedRandomIntSupplier() {
-        return (n) -> new Random().nextInt(n);
+        return bound -> ThreadLocalRandom.current().nextInt(bound);
     }
 
     /**
@@ -91,7 +92,7 @@ public class CrazyLambdas {
      * @return square operation
      */
     public static IntUnaryOperator intSquareOperation() {
-        return n -> n * n;
+        return x -> x * x;
     }
 
     /**
@@ -109,7 +110,7 @@ public class CrazyLambdas {
      * @return string to int converter
      */
     public static ToIntFunction<String> stringToIntConverter() {
-        return Integer::valueOf;
+        return Integer::parseInt;
     }
 
     /**
@@ -120,7 +121,7 @@ public class CrazyLambdas {
      * @return a function supplier
      */
     public static Supplier<IntUnaryOperator> nMultiplyFunctionSupplier(int n) {
-        return () -> (x) -> x * n;
+        return () -> x -> x * n;
     }
 
     /**
@@ -180,8 +181,7 @@ public class CrazyLambdas {
      * @return a binary function that receiver predicate and function and compose them to create a new function
      */
     public static BiFunction<IntUnaryOperator, IntPredicate, IntUnaryOperator> functionToConditionalFunction() {
-        return (funcOne, funcTwo) -> (input) ->
-            funcTwo.test(input) ? funcOne.applyAsInt(input) : input;
+        return (intFunction, condition) -> x -> condition.test(x) ? intFunction.applyAsInt(x) : x;
     }
 
     /**
@@ -192,7 +192,7 @@ public class CrazyLambdas {
      * @return a high-order function that fetches a function from a function map by a given name or returns identity()
      */
     public static BiFunction<Map<String, IntUnaryOperator>, String, IntUnaryOperator> functionLoader() {
-        return (map, funcName) -> map.containsKey(funcName) ? map.get(funcName) : IntUnaryOperator.identity();
+        return (functionMap, functionName) -> functionMap.getOrDefault(functionName, IntUnaryOperator.identity());
     }
 
     /**
