@@ -15,6 +15,11 @@ public class Functions {
         FunctionMap<Integer, Integer> intFunctionMap = new FunctionMap<>();
 
         // todo: add simple functions to the function map (abs, sgn, increment, decrement, square)
+        intFunctionMap.addFunction("abs", Math::abs);
+        intFunctionMap.addFunction("sgn", val -> (int) Math.signum(val));
+        intFunctionMap.addFunction("increment", val -> ++val);
+        intFunctionMap.addFunction("decrement", val -> --val);
+        intFunctionMap.addFunction("square", val -> val * val);
 
         return intFunctionMap;
     }

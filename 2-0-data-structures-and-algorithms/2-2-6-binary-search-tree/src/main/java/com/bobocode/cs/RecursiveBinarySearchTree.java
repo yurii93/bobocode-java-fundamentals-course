@@ -1,7 +1,5 @@
 package com.bobocode.cs;
 
-import com.bobocode.util.ExerciseNotCompletedException;
-
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -87,7 +85,7 @@ public class RecursiveBinarySearchTree<T extends Comparable<T>> implements Binar
     }
 
     private Node<T> findNode(Node<T> node, T element) {
-        if(node == null) {
+        if (node == null) {
             return null;
         }
 
