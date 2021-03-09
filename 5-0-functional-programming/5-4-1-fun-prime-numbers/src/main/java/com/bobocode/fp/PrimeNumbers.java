@@ -1,9 +1,10 @@
 package com.bobocode.fp;
 
-import com.bobocode.util.ExerciseNotCompletedException;
-
 import java.util.List;
 import java.util.function.IntConsumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 /**
  * {@link PrimeNumbers} provides an API to work with prime numbers. It is using a stream of prime numbers.
@@ -22,8 +23,19 @@ public class PrimeNumbers {
      * @return the sum of n prime numbers
      */
     public static int sum(int n) {
-        throw new ExerciseNotCompletedException(); // todo: create an infinite stream of ints, then filter prime numbs
-
+        // todo: create an infinite stream of ints, then filter prime numbs
+        return Stream.iterate(1, x -> x + 1)
+                .filter(currentLimitNumber ->
+                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
+                .limit(n)
+                .reduce(0, Integer::sum);
+        // Another implementation
+        /*return Stream.iterate(1, x -> x + 1)
+                .filter(currentLimitNumber ->
+                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
+                .limit(n)
+                .mapToInt(Integer::intValue)
+                .sum();*/
     }
 
     /**
@@ -32,7 +44,12 @@ public class PrimeNumbers {
      * @return a list of collected prime numbers
      */
     public static List<Integer> collect(int n) {
-        throw new ExerciseNotCompletedException(); // todo: reuse the logic of prime numbers stream and collect them
+        // todo: reuse the logic of prime numbers stream and collect them
+        return Stream.iterate(1, x -> x + 1)
+                .filter(currentLimitNumber ->
+                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
+                .limit(n)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -42,6 +59,7 @@ public class PrimeNumbers {
      * @param consumer a logic that should be applied to the found prime number
      */
     public static void processByIndex(int idx, IntConsumer consumer) {
-        throw new ExerciseNotCompletedException(); // todo: reuse the logic of prime numbers stream then process the last one
+        // todo: reuse the logic of prime numbers stream then process the last one
+        PrimeNumbers.collect(idx).stream().skip(idx - 1).findFirst().ifPresent(consumer::accept);
     }
 }
