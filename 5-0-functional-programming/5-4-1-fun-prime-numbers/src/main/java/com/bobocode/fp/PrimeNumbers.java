@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * {@link PrimeNumbers} provides an API to work with prime numbers. It is using a stream of prime numbers.
@@ -23,19 +22,9 @@ public class PrimeNumbers {
      * @return the sum of n prime numbers
      */
     public static int sum(int n) {
-        // todo: create an infinite stream of ints, then filter prime numbs
-        return Stream.iterate(1, x -> x + 1)
-                .filter(currentLimitNumber ->
-                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
+        return primeNumberStream()
                 .limit(n)
-                .reduce(0, Integer::sum);
-        // Another implementation
-        /*return Stream.iterate(1, x -> x + 1)
-                .filter(currentLimitNumber ->
-                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
-                .limit(n)
-                .mapToInt(Integer::intValue)
-                .sum();*/
+                .sum();
     }
 
     /**
@@ -44,11 +33,9 @@ public class PrimeNumbers {
      * @return a list of collected prime numbers
      */
     public static List<Integer> collect(int n) {
-        // todo: reuse the logic of prime numbers stream and collect them
-        return Stream.iterate(1, x -> x + 1)
-                .filter(currentLimitNumber ->
-                        IntStream.range(2, currentLimitNumber).noneMatch(number -> currentLimitNumber % number == 0))
+        return primeNumberStream()
                 .limit(n)
+                .boxed()
                 .collect(Collectors.toList());
     }
 
@@ -59,7 +46,19 @@ public class PrimeNumbers {
      * @param consumer a logic that should be applied to the found prime number
      */
     public static void processByIndex(int idx, IntConsumer consumer) {
-        // todo: reuse the logic of prime numbers stream then process the last one
-        PrimeNumbers.collect(idx).stream().skip(idx - 1).findFirst().ifPresent(consumer::accept);
+        primeNumberStream()
+                .limit(idx)
+                .reduce((first, second) -> second)
+                .ifPresent(consumer);
+    }
+
+    private static IntStream primeNumberStream() {
+        return IntStream.iterate(1, i -> i + 1)
+                .filter(PrimeNumbers::isPrime);
+    }
+
+    private static boolean isPrime(int n) {
+        return IntStream.range(2, n)
+                .noneMatch(i -> n % i == 0);
     }
 }
